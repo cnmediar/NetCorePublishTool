@@ -28,7 +28,7 @@ namespace NetCorePublishTool
             this.btnSelectOutPath.Click += BtnSelectOutPath_Click;
             this.btnPubNow.Click += BtnPubNow_Click;
 
-            this.txtInPath.TextChanged += TxtInPath_TextChanged;
+            this.cmbProjectPath.TextChanged += cmbProjectPath_TextChanged;
 
             this.linkDoc.LinkClicked += LinkDoc_LinkClicked;
             this.ckbRuntime.CheckedChanged += CkbRuntime_CheckedChanged;
@@ -49,6 +49,14 @@ namespace NetCorePublishTool
 
             var os = File.ReadAllLines(@".\AppData\netcorepub\os.txt");
             cmbRuntime.Items.AddRange(os);
+
+         
+
+            foreach (var item in JsonfileHelper.Instance.loadTask())
+            {
+                cmbProjectPath.Items.Add(item.ProjectPath);
+            }
+
         }
 
 
@@ -67,19 +75,46 @@ namespace NetCorePublishTool
             ofd.Title = "选择.Net Core项目文件";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                txtInPath.Text = ofd.FileName;
+                cmbProjectPath.Text = ofd.FileName;
                 isBtnSelectInPath = true;
 
-                cmbFrameworks.Items.Clear();
-                var isSuccess = ReadTargetFramework(txtInPath.Text, out string[] targets);
-                if (!isSuccess)
-                {
-                    MessageBox.Show("项目配置TargetFramework(s)不正确,请检查!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                cmbFrameworks.Items.AddRange(targets);
-                cmbFrameworks.SelectedIndex = 0;
+
+                var path = Directory.GetParent(ofd.FileName).FullName;
+                 path= Directory.GetParent(path).FullName;
+                path = Directory.GetParent(path).FullName;
+
+
+                txtOutPath.Text = Path.Combine(path, "Publish");
+
+                //comboBox1.Items.Add(ofd.FileName);
+
+                var item = JsonfileHelper.Instance.loadTask().Exists(n => n.ProjectPath == cmbProjectPath.Text);
+                if(!item)
+                JsonfileHelper.Instance.addPath(new PathItem {
+
+                    ProjectPath = ofd.FileName,
+                    PublishPath = txtOutPath.Text
+
+                });
+
+                selectFramework();
+
+
             }
+        }
+
+        private void selectFramework()
+        {
+            cmbFrameworks.Items.Clear();
+            var isSuccess = ReadTargetFramework(cmbProjectPath.Text, out string[] targets);
+            if (!isSuccess)
+            {
+                MessageBox.Show("项目配置TargetFramework(s)不正确,请检查!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            cmbFrameworks.Items.AddRange(targets);
+            cmbFrameworks.SelectedIndex = 0;
+
         }
 
         /// <summary>
@@ -87,15 +122,15 @@ namespace NetCorePublishTool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TxtInPath_TextChanged(object sender, EventArgs e)
+        private void cmbProjectPath_TextChanged(object sender, EventArgs e)
         {
             // 不是通过选择按钮执行的
             if (!isBtnSelectInPath)
             {
                 // 如果是目录则检测目录下是否存在.csproj文件
-                if (!txtInPath.Text.EndsWith(".csproj") && Directory.Exists(txtInPath.Text))
+                if (!cmbProjectPath.Text.EndsWith(".csproj") && Directory.Exists(cmbProjectPath.Text))
                 {
-                    var files = Directory.GetFiles(txtInPath.Text);
+                    var files = Directory.GetFiles(cmbProjectPath.Text);
                     // 遍历检测
                     bool flag = false;
                     foreach (var item in files)
@@ -105,10 +140,10 @@ namespace NetCorePublishTool
                             flag = true;
                             txtOutPath.Focus();
 
-                            if (txtInPath.Text.EndsWith("\\"))
-                                txtInPath.Text = item;
+                            if (cmbProjectPath.Text.EndsWith("\\"))
+                                cmbProjectPath.Text = item;
                             else
-                                txtInPath.Text = item;
+                                cmbProjectPath.Text = item;
                             break;
                         }
                     }
@@ -118,7 +153,7 @@ namespace NetCorePublishTool
                     {
                         // 检测到项目文件则读取运行时配置
                         cmbFrameworks.Items.Clear();
-                        var isSuccess = ReadTargetFramework(txtInPath.Text, out string[] targets);
+                        var isSuccess = ReadTargetFramework(cmbProjectPath.Text, out string[] targets);
                         if (!isSuccess)
                         {
                             MessageBox.Show("项目配置TargetFramework(s)不正确,请检查!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -215,10 +250,10 @@ namespace NetCorePublishTool
         {
             #region 校验数据
 
-            txtInPath.Text = txtInPath.Text.Trim();
+            cmbProjectPath.Text = cmbProjectPath.Text.Trim();
             txtOutPath.Text = txtOutPath.Text.Trim();
 
-            if (txtInPath.Text.IsNull()
+            if (cmbProjectPath.Text.IsNull()
                 || txtOutPath.Text.IsNull())
             {
                 MessageBox.Show("请选择项目文件和输出目录!", "提示");
@@ -245,7 +280,7 @@ namespace NetCorePublishTool
             sb.Append("dotnet publish ");
 
             sb.Append("\"");
-            sb.Append(txtInPath.Text);
+            sb.Append(cmbProjectPath.Text);
             sb.Append("\"");
 
             sb.Append(" -c ");
@@ -328,5 +363,22 @@ namespace NetCorePublishTool
             }
             return false;
         }
+
+        private void cmbProjectPath_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            
+
+            var item=    JsonfileHelper.Instance.loadTask().Find(n=>n.ProjectPath== cmbProjectPath.Text);
+
+            if (item != null)
+            {
+                txtOutPath.Text = item.PublishPath;
+
+                selectFramework();
+            }
+
+
+            }
     }
 }

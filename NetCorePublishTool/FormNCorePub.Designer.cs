@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormNCorePub));
             this.btnSelectSourcePath = new System.Windows.Forms.Button();
-            this.txtInPath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbPubMode = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -52,6 +51,7 @@
             this.panel5 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.cmbProjectPath = new System.Windows.Forms.ComboBox();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel6.SuspendLayout();
@@ -66,13 +66,6 @@
             this.btnSelectSourcePath.TabIndex = 0;
             this.btnSelectSourcePath.Text = "选择";
             this.btnSelectSourcePath.UseVisualStyleBackColor = true;
-            // 
-            // txtInPath
-            // 
-            this.txtInPath.Location = new System.Drawing.Point(8, 23);
-            this.txtInPath.Name = "txtInPath";
-            this.txtInPath.Size = new System.Drawing.Size(559, 21);
-            this.txtInPath.TabIndex = 1;
             // 
             // label1
             // 
@@ -206,7 +199,7 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.txtInPath);
+            this.panel2.Controls.Add(this.cmbProjectPath);
             this.panel2.Controls.Add(this.btnPubNow);
             this.panel2.Controls.Add(this.btnSelectSourcePath);
             this.panel2.Controls.Add(this.label1);
@@ -281,6 +274,15 @@
             this.panel1.Size = new System.Drawing.Size(674, 38);
             this.panel1.TabIndex = 22;
             // 
+            // cmbProjectPath
+            // 
+            this.cmbProjectPath.FormattingEnabled = true;
+            this.cmbProjectPath.Location = new System.Drawing.Point(12, 24);
+            this.cmbProjectPath.Name = "cmbProjectPath";
+            this.cmbProjectPath.Size = new System.Drawing.Size(555, 20);
+            this.cmbProjectPath.TabIndex = 19;
+            this.cmbProjectPath.SelectedIndexChanged += new System.EventHandler(this.cmbProjectPath_SelectedIndexChanged);
+            // 
             // FormNCorePub
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -305,7 +307,6 @@
         #endregion
 
         private System.Windows.Forms.Button btnSelectSourcePath;
-        private System.Windows.Forms.TextBox txtInPath;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox cmbPubMode;
         private System.Windows.Forms.Label label3;
@@ -327,5 +328,6 @@
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.ComboBox cmbProjectPath;
     }
 }
