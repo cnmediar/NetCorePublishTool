@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Tamir.SharpSsh;
 using static ECode.Commons.TimeEx;
 
 namespace NetCorePublishTool
@@ -25,7 +26,7 @@ namespace NetCorePublishTool
             this.Load += FormMain_Load;
 
             this.btnSelectSourcePath.Click += BtnSelectSourcePath_Click;
-            this.btnSelectOutPath.Click += BtnSelectOutPath_Click;
+         //   this.btnSelectOutPath.Click += BtnSelectOutPath_Click;
             this.btnPubNow.Click += BtnPubNow_Click;
 
             this.cmbProjectPath.TextChanged += cmbProjectPath_TextChanged;
@@ -380,5 +381,35 @@ namespace NetCorePublishTool
 
 
             }
+
+        private void btnCMD_Click(object sender, EventArgs ee)
+        {
+           
+                try
+                {
+                  //  SshConnectionInfo input = Util.GetInput();
+                    SshExec exec = new SshExec(txtHost.Text, txtUser.Text);
+                    exec.Password = txtPassword.Text;
+                //  if (input.Pass != null) exec.Password = input.Pass;
+                //   if (input.IdentityFile != null) exec.AddIdentityFile(input.IdentityFile);
+
+                AppendText("Connecting...");
+                 exec.Connect();
+                AppendText("Connect OK");
+                   
+                       string command = txtCMD.Text;
+                        if (command != "") 
+                       exec.RunCommand(command);
+                      
+                AppendText("Disconnecting...");
+                    exec.Close();
+                AppendText(" Disconnecting OK");
+                }
+                catch (Exception e)
+                {
+                AppendText(e.Message);
+                }
+           
+        }
     }
 }
